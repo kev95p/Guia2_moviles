@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,14 +37,18 @@ public class Descargar extends AsyncTask<String, Integer, Estado> {
 
     private Button btnDescargar;
     private TextView lblEstado;
+    private ProgressBar pbDescarga;
     private Context context;
+    private String nombre;
 
 
 
-    public Descargar(Context context,TextView estado,Button descargar) {
+    public Descargar(Context context,TextView estado,Button descargar,ProgressBar descarga,String nombre) {
         this.context      = context;
         this.lblEstado    = estado;
         this.btnDescargar = descargar;
+        this.pbDescarga = descarga;
+        this.nombre = nombre;
     }
 
     @Override
@@ -59,7 +64,9 @@ public class Descargar extends AsyncTask<String, Integer, Estado> {
             coneccion.connect();
 
             //obtenemos el nombre del archivo y su extencion, eje : imagen.jpg
-            String nombre = url.getFile();
+
+            String nombre = this.nombre.equals("")?url.getFile():this.nombre;
+
             nombre = nombre.substring(nombre.lastIndexOf("/")+1,nombre.length());
 
 
@@ -135,6 +142,7 @@ public class Descargar extends AsyncTask<String, Integer, Estado> {
         //se actualizan los valores
         //el porcentaje es de 0 - 100
         lblEstado.setText(progress[0]+"%");
+        pbDescarga.setProgress(progress[0]);
     }
 
     @Override

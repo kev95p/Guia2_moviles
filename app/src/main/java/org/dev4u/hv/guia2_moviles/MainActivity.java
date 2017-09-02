@@ -4,20 +4,29 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
+import android.support.annotation.IdRes;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ProgressBar;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
-    private EditText txtURL;
+    private EditText txtURL,txtNombreArchivo;
+    private  RadioGroup rgCambiar;
+    private RadioButton rbCambiar,rbNoCambiar;
     private TextView lblEstado;
     private Button btnDescargar;
+    private ProgressBar pbDescarga;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -26,18 +35,46 @@ public class MainActivity extends AppCompatActivity {
         txtURL       = (EditText) findViewById(R.id.txtURL);
         lblEstado    = (TextView) findViewById(R.id.lblEstado);
         btnDescargar = (Button)   findViewById(R.id.btnDescargar);
+        rbCambiar = (RadioButton) findViewById(R.id.rbCambiar);
+        rbNoCambiar = (RadioButton) findViewById(R.id.rbNoCambiar);
+        txtNombreArchivo = (EditText) findViewById(R.id.txtNombreArchivo);
+        rgCambiar = (RadioGroup) findViewById(R.id.rgCambio);
+        pbDescarga = (ProgressBar) findViewById(R.id.pbDescarga);
+
+        rbCambiar.setChecked(true);
 
         //evento onClick
         btnDescargar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(rbCambiar.isChecked() && txtNombreArchivo.getText().toString().equals("")){
+                    Toast.makeText(MainActivity.this, "Ponga nombre al archivo", Toast.LENGTH_LONG).show();
+                    return;
+                }
                 new Descargar(
                         MainActivity.this,
                         lblEstado,
-                        btnDescargar
+                        btnDescargar,
+                        pbDescarga,
+                        txtNombreArchivo.getText().toString()
+
                 ).execute(txtURL.getText().toString());
             }
         });
+
+        rgCambiar.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, @IdRes int checkedId) {
+                if(checkedId == rbCambiar.getId()){
+                    txtNombreArchivo.setEnabled(true);
+                }
+                if(checkedId == rbNoCambiar.getId()){
+                    txtNombreArchivo.setEnabled(false);
+                    txtNombreArchivo.setText("");
+                }
+            }
+        });
+
 
         verifyStoragePermissions(this);
     }
